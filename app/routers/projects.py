@@ -1,9 +1,9 @@
 from fastapi import APIRouter, HTTPException
 from typing import List
 
-from app.schemas import ProjectBase, ProjectCreate, Project, ProjectUpdate
+from app.schemas import ProjectCreate, Project, ProjectUpdate
 
-router = APIRouter(prefix="/api/projects", tags=["projects"])
+router = APIRouter(prefix="/projects", tags=["projects"])
 
 
 # Временное "хранилище" для проектов
