@@ -8,7 +8,6 @@ from sqlalchemy import (
     func
 )
 from sqlalchemy.orm import relationship, declarative_base
-from sqlalchemy.ext.associationproxy import association_proxy
 
 Base = declarative_base()
 
