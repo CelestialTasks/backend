@@ -1,31 +1,29 @@
-import os
-import asyncio
-from jose import jwt, JWTError
-from clerk_backend_api import Clerk
+from fastapi import APIRouter, HTTPException, Depends
+from sqlalchemy.ext.asyncio import AsyncSession
 
-from fastapi import APIRouter
-
-from app.schemas import UserCreate
+from app.services.auth import TranscriptedUser
+from app.database import get_db
+from app.models import User
+from app.schemas import UserCreate, UserBase
 
 router = APIRouter(prefix="/users", tags=["users"])
 
-SECRET_KEY = '1'
-ALGORITHM = 'HS256'
 
-
-async def main():
-    async with Clerk(
-        bearer_auth="<YOUR_BEARER_TOKEN_HERE>",
-    ) as clerk:
-        email = await clerk.email_addresses.get_async(email_address_id="email_address_id_example")
-
-        assert email is not None
-
-
-# POST /users/ – Create a user
-@router.post("/", status_code=204)
-async def create_user(user: UserCreate):
+@router.post("/", response_model=UserCreate)
+async def create_user(
+    userdata: TranscriptedUser,
+    db: AsyncSession = Depends(get_db)
+):
     try:
-        payload = jwt.decode(user.token, SECRET_KEY, algorithms=[ALGORITHM])
-    except JWTError:
-        pass
+        user_id = userdata.user_id
+        username = userdata.username
+        email = userdata.email
+
+        new_user = User(id=user_id, username=username, email=email)
+        db.add(new_user)
+        await db.commit()
+
+        return HTTPException(status_code=204)
+
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))

@@ -1,9 +1,9 @@
 from pydantic import BaseModel
-from typing import Optional
 
 
 class UserBase(BaseModel):
-    username: int
+    user_id: str
+    username: str
     email: str
 
 

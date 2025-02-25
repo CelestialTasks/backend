@@ -1,11 +1,10 @@
 from sqlalchemy import (
-    mapped_column,
     Integer,
     String,
     Text,
     ForeignKey
 )
-from sqlalchemy.orm import relationship, declarative_base
+from sqlalchemy.orm import relationship, declarative_base, mapped_column
 
 Base = declarative_base()
 
