@@ -1,12 +1,15 @@
+from clerk_backend_api import Clerk
 from fastapi import APIRouter, HTTPException, Depends
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.services.auth import TranscriptedUser
 from app.database import get_db
 from app.models import User
-from app.schemas import UserCreate, UserBase
+from app.schemas import UserCreate
 
 router = APIRouter(prefix="/users", tags=["users"])
+
+clerk = Clerk()
 
 
 @router.post("/", response_model=UserCreate)

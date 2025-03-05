@@ -13,9 +13,11 @@ engine = create_engine(
 # Создаем sessionmaker для синхронной работы
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
+
 # Функция инициализации базы данных (создание таблиц)
 def init_db():
     Base.metadata.create_all(bind=engine)
+
 
 # Зависимость для получения сессии базы данных в FastAPI
 def get_db():
@@ -24,6 +26,7 @@ def get_db():
         yield db
     finally:
         db.close()
+
 
 # Если этот файл запустить напрямую, создадим таблицы в базе
 if __name__ == "__main__":
