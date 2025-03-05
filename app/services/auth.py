@@ -1,37 +1,38 @@
 from typing import Annotated
-from clerk_backend_api import Clerk
+import jwt
 
-from fastapi import Depends
-from fastapi.security.oauth2 import OAuth2PasswordBearer
+from fastapi import Depends, HTTPException
+from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
+from jwt import PyJWTError
 
 from app.schemas import UserBase
 
-HeaderBearerAccessTokenSchema = OAuth2PasswordBearer(tokenUrl='token')
+CLERK_PUBLIC_KEY = "pk_test_b3Blbi15YWstODguY2xlcmsuYWNjb3VudHMuZGV2JA"
+ALGORITHM = "RS256"
+
+security = HTTPBearer()
 
 
-def transcript_of_the_incoming_token(
-        access_token_encoded: Annotated[str, Depends(HeaderBearerAccessTokenSchema)],
-) -> str:
-    return access_token_encoded
+def decoder(credentials: HTTPAuthorizationCredentials = Depends(security)) -> UserBase:
+    token = credentials.credentials
+    try:
+        token_data = jwt.decode(token, CLERK_PUBLIC_KEY, algorithms=ALGORITHM)
+    except PyJWTError:
+        raise HTTPException(
+            status_code=403,
+            detail="Токен не проходит декодирование или он не из сервиса Clerk"
+        )
+    user_data = {"email": token_data.get("email"),
+                 "clerk_id": token_data.get("user_id"),
+                 "username": token_data.get("username"),
+                 }
+    if not all(user_data.values()):
+        raise HTTPException(
+            status_code=400,
+            detail=f"Данные из токена не корректные, отсутствуют"
+                   " некоторые поля, токен может быть подделан"
+        )
+    return UserBase(**user_data)
 
 
-def extract_data_from_the_incoming_token(
-    access_token_encoded: Annotated[str, Depends(transcript_of_the_incoming_token)]
-) -> UserBase:
-    with Clerk(bearer_auth=access_token_encoded) as clerk:
-        user_data = clerk.users.get_user_from_token(access_token_encoded)
-
-    return UserBase(
-        user_id=user_data["user_id"],
-        email=user_data["email"],
-        username=user_data["username"]
-    )
-
-# async def get_user_by_access_token_decoded(
-#     access_token_decoded: Annotated[UserBase, Depends(extract_access_token_decoded)]
-# ) -> User:
-#     # todo: get user from db
-#     return await User.__tablename__.
-
-
-TranscriptedUser = Annotated[UserBase, Depends(extract_data_from_the_incoming_token)]
+data_from_user = Annotated[UserBase, Depends(decoder)]

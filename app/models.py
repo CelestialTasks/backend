@@ -13,6 +13,7 @@ class User(Base):
     __tablename__ = 'users'
 
     id = mapped_column(Integer, primary_key=True, autoincrement=True)
+    clerk_id = mapped_column(String, unique=True, index=True, nullable=False)
     username = mapped_column(String(50))
     email = mapped_column(String(150), unique=True, nullable=False)
 
