@@ -26,7 +26,7 @@ def decoder(credentials: HTTPAuthorizationCredentials = Depends(security)) -> Us
     except jwt.PyJWTError:
         raise HTTPException(
             status_code=403,
-            detail="Токен не проходит декодирование или он не из сервиса Clerk"
+            detail="The token does not pass decoding or it is not from the Clerk service"
         )
     user_data = {"email": token_data.get("email"),
                  "clerk_id": token_data.get("user_id"),
@@ -35,8 +35,8 @@ def decoder(credentials: HTTPAuthorizationCredentials = Depends(security)) -> Us
     if not all(user_data.values()):
         raise HTTPException(
             status_code=400,
-            detail=f"Данные из токена не корректные, отсутствуют"
-                   " некоторые поля, токен может быть подделан"
+            detail=f"The data from the token is incorrect,"
+                   " some fields are missing, the token may be forged"
         )
     return UserBase(**user_data)
 
