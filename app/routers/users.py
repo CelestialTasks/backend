@@ -1,28 +1,25 @@
-from clerk_backend_api import Clerk
 from fastapi import APIRouter, HTTPException, Depends
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.services.auth import TranscriptedUser
+from app.services.auth import data_from_user
 from app.database import get_db
 from app.models import User
 from app.schemas import UserCreate
 
 router = APIRouter(prefix="/users", tags=["users"])
 
-clerk = Clerk()
-
 
 @router.post("/", response_model=UserCreate)
 async def create_user(
-    userdata: TranscriptedUser,
+    userdata: data_from_user,
     db: AsyncSession = Depends(get_db)
 ):
     try:
-        user_id = userdata.user_id
+        clerk_id = userdata.clerk_id
         username = userdata.username
         email = userdata.email
 
-        new_user = User(id=user_id, username=username, email=email)
+        new_user = User(clerk_id=clerk_id, username=username, email=email)
         db.add(new_user)
         await db.commit()
 
