@@ -1,5 +1,6 @@
 from fastapi import APIRouter, HTTPException, Depends
-from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.exc import IntegrityError
+from sqlalchemy.orm import Session
 
 from app.services.auth import data_from_user
 from app.database import get_db
@@ -10,20 +11,26 @@ router = APIRouter(prefix="/users", tags=["users"])
 
 
 @router.post("/", response_model=UserCreate)
-async def create_user(
+def create_user(
     userdata: data_from_user,
-    db: AsyncSession = Depends(get_db)
+    db: Session = Depends(get_db)
 ):
+    existing_user = db.query(User).filter(User.clerk_id == userdata.clerk_id).first()
+    if existing_user:
+        raise HTTPException(status_code=400, detail="User already exists")
+
+    new_user = User(
+        clerk_id=userdata.clerk_id,
+        username=userdata.username,
+        email=userdata.email
+    )
+
+    db.add(new_user)
     try:
-        clerk_id = userdata.clerk_id
-        username = userdata.username
-        email = userdata.email
+        db.commit()
+        db.refresh(new_user)
+    except IntegrityError:
+        db.rollback()
+        raise HTTPException(status_code=400, detail="User already exists")
 
-        new_user = User(clerk_id=clerk_id, username=username, email=email)
-        db.add(new_user)
-        await db.commit()
-
-        return HTTPException(status_code=204)
-
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
+    return new_user

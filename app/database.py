@@ -1,25 +1,25 @@
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
-from app.models import Base  # Предполагается, что Base определён в models.py
+from app.models import Base
 
-# URL для подключения к базе данных (с использованием SQLite)
+# URL to connect to the database (using SQLite)
 SQLALCHEMY_DATABASE_URL = "sqlite:///./sql_app.db"
 
-# Создаем синхронный движок
+# Creating a synchronous engine
 engine = create_engine(
     SQLALCHEMY_DATABASE_URL, connect_args={"check_same_thread": False}
 )
 
-# Создаем sessionmaker для синхронной работы
+# Create sessionmaker for synchronous work
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
 
-# Функция инициализации базы данных (создание таблиц)
+# Database initialization function (creation of tables)
 def init_db():
     Base.metadata.create_all(bind=engine)
 
 
-# Зависимость для получения сессии базы данных в FastAPI
+# Dependency for getting database session in FastAPI
 def get_db():
     db = SessionLocal()
     try:
@@ -28,6 +28,6 @@ def get_db():
         db.close()
 
 
-# Если этот файл запустить напрямую, создадим таблицы в базе
+# If we run this file directly, we will create tables in the database
 if __name__ == "__main__":
     init_db()

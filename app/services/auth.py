@@ -1,22 +1,20 @@
+import os
+from pathlib import Path
 from typing import Annotated
 import jwt
 
 from fastapi import Depends, HTTPException
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
+from dotenv import load_dotenv
 
 from app.schemas import UserBase
 
-CLERK_PUBLIC_KEY = """-----BEGIN PUBLIC KEY-----
-MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEA93k1cCpSyCAeS0RUok7v
-B+wtLpCOO5fiUvXTDbq8yA9f5lPcaIREVfJlEEC90/RS6bXX4iZ8LB479zibfa4L
-LYF/SoLpWvKAx6R4S7xv4xeKQ4Ri6cDfpU4nH5REzNLZm8WVDYAqmjM30arURz2+
-DHs4A7yaqCAXhPaPAPneL0CQjE4b32DDvjXXcTHnjEDz71MWwjTM6BKfUOak4x3A
-beqryGLNiq2ebM5nun1Dxb5hI//L3vMfLHn9xErkZiDxs8TrvpA03C2O7ERjGh1z
-lrNVIGFNOn1cKTpzNkBWwZME/hinZn0ls/IMnfdJnd29Q7iDIn43BZPb+FiJUFK7
-RwIDAQAB
------END PUBLIC KEY-----
-"""
-ALGORITHM = "RS256"
+BASE_DIR = Path(__file__).resolve().parent.parent
+dotenv_path = BASE_DIR / '.env'
+load_dotenv(dotenv_path=dotenv_path)
+
+CLERK_PUBLIC_KEY = os.getenv('CLERK_PUBLIC_KEY')
+ALGORITHM = os.getenv('ALGORITHM')
 
 security = HTTPBearer()
 
