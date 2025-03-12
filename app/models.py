@@ -2,11 +2,21 @@ from sqlalchemy import (
     Integer,
     String,
     Text,
-    ForeignKey
+    ForeignKey,
+    Table,
+    Column
 )
 from sqlalchemy.orm import relationship, declarative_base, mapped_column
 
 Base = declarative_base()
+
+
+project_user = Table(
+    'project_user',
+    Base.metadata,
+    Column('user_id', Integer, ForeignKey('users.id'), primary_key=True),
+    Column('project_id', Integer, ForeignKey('projects.id'), primary_key=True),
+)
 
 
 class User(Base):
@@ -17,24 +27,10 @@ class User(Base):
     username = mapped_column(String(50))
     email = mapped_column(String(150), unique=True, nullable=False)
 
-    project_associations = relationship('ProjectUser', back_populates='user')
-    projects = relationship('Project', secondary='project_user', back_populates='users')
+    projects = relationship('Project', secondary=project_user, back_populates='users')
 
     def __repr__(self):
         return f"<User(id={self.id}, email={self.email})>"
-
-
-class ProjectUser(Base):
-    __tablename__ = 'project_user'
-
-    user_id = mapped_column(Integer, ForeignKey('users.id'), primary_key=True)
-    project_id = mapped_column(Integer, ForeignKey('projects.id'), primary_key=True)
-
-    user = relationship("User", back_populates="project_associations")
-    project = relationship("Project", back_populates="user_associations")
-
-    def __repr__(self):
-        return f"<ProjectUser(user_id={self.user_id}, project_id={self.project_id})>"
 
 
 class Project(Base):
@@ -44,8 +40,7 @@ class Project(Base):
     name = mapped_column(String(150), nullable=False)
     description = mapped_column(Text)
 
-    user_associations = relationship('ProjectUser', back_populates='project')
-    users = relationship('User', secondary='project_user', back_populates='projects')
+    users = relationship('User', secondary=project_user, back_populates='projects')
 
     clouds = relationship('Cloud', back_populates='project')
 

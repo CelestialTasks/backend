@@ -28,6 +28,6 @@ def get_db():
         db.close()
 
 
-# If we run this file directly, we will create tables in the database
+# TODO: remove it when we switch to Potgre
 if __name__ == "__main__":
     init_db()
