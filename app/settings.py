@@ -12,3 +12,4 @@ class CustomBaseSettings(BaseSettings):
 
 
 settings = CustomBaseSettings()
+

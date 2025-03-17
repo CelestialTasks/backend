@@ -1,11 +1,12 @@
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 
 
 class UserBase(BaseModel):
-    clerk_id: str
+    user_id: str
     username: str
     email: str
 
 
 class UserCreate(UserBase):
-    pass
+    id: int
+    user_id: str = Field(..., alias="clerk_id")
