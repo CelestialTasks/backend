@@ -1,42 +1,33 @@
 from sqlalchemy import (
-    Column,
     Integer,
     String,
     Text,
-    DateTime,
     ForeignKey,
-    func
+    Table,
+    Column
 )
-from sqlalchemy.orm import relationship, declarative_base
-from sqlalchemy.ext.associationproxy import association_proxy
+from sqlalchemy.orm import relationship, declarative_base, mapped_column
 
 Base = declarative_base()
 
 
-class ProjectUser(Base):
-    __tablename__ = 'project_user'
-
-    user_id = Column(Integer, ForeignKey('users.id'), primary_key=True)
-    project_id = Column(Integer, ForeignKey('projects.id'), primary_key=True)
-
-    user = relationship("User", back_populates="project_associations")
-    project = relationship("Project", back_populates="user_associations")
-
-    def __repr__(self):
-        return f"<ProjectUser(id={self.id}, user_id={self.user_id}, project_id={self.project_id})>"
+project_user = Table(
+    'project_user',
+    Base.metadata,
+    Column('user_id', Integer, ForeignKey('users.id'), primary_key=True),
+    Column('project_id', Integer, ForeignKey('projects.id'), primary_key=True),
+)
 
 
 class User(Base):
     __tablename__ = 'users'
 
-    id = Column(Integer, primary_key=True, autoincrement=True)
-    nickname = Column(String(50))
-    email = Column(String(150), unique=True, nullable=False)
-    created_at = Column(DateTime, server_default=func.current_timestamp())
-    updated_at = Column(DateTime, server_default=func.current_timestamp())
+    id = mapped_column(Integer, primary_key=True, autoincrement=True)
+    clerk_id = mapped_column(String, unique=True, index=True, nullable=False)
+    username = mapped_column(String(50))
+    email = mapped_column(String(150), unique=True, nullable=False)
 
-    owned_projects = relationship('Project', back_populates='owner')
-    project_associations = relationship("ProjectUser", back_populates="user")
+    projects = relationship('Project', secondary=project_user, back_populates='users')
 
     def __repr__(self):
         return f"<User(id={self.id}, email={self.email})>"
@@ -45,13 +36,12 @@ class User(Base):
 class Project(Base):
     __tablename__ = 'projects'
 
-    id = Column(Integer, primary_key=True, autoincrement=True)
-    name = Column(String(150), nullable=False)
-    description = Column(Text)
-    owner_id = Column(Integer, ForeignKey('users.id'), nullable=False)
+    id = mapped_column(Integer, primary_key=True, autoincrement=True)
+    name = mapped_column(String(150), nullable=False)
+    description = mapped_column(Text)
 
-    owner = relationship('User', back_populates='owned_projects')
-    user_associations = relationship("ProjectUser", back_populates="project")
+    users = relationship('User', secondary=project_user, back_populates='projects')
+
     clouds = relationship('Cloud', back_populates='project')
 
     def __repr__(self):
@@ -61,11 +51,11 @@ class Project(Base):
 class Cloud(Base):
     __tablename__ = 'clouds'
 
-    id = Column(Integer, primary_key=True, autoincrement=True)
-    name = Column(String(150), nullable=False)
-    project_id = Column(Integer, ForeignKey('projects.id'), nullable=False)
-    coordinate_x = Column(Integer)
-    coordinate_y = Column(Integer)
+    id = mapped_column(Integer, primary_key=True, autoincrement=True)
+    name = mapped_column(String(150), nullable=False)
+    project_id = mapped_column(Integer, ForeignKey('projects.id'), nullable=False)
+    coordinate_x = mapped_column(Integer)
+    coordinate_y = mapped_column(Integer)
 
     project = relationship('Project', back_populates='clouds')
     tasks = relationship('Task', back_populates='cloud')
@@ -77,10 +67,10 @@ class Cloud(Base):
 class Task(Base):
     __tablename__ = 'tasks'
 
-    id = Column(Integer, primary_key=True, autoincrement=True)
-    name = Column(String(150), nullable=False)
-    description = Column(Text)
-    cloud_id = Column(Integer, ForeignKey('clouds.id'), nullable=False)
+    id = mapped_column(Integer, primary_key=True, autoincrement=True)
+    name = mapped_column(String(150), nullable=False)
+    description = mapped_column(Text)
+    cloud_id = mapped_column(Integer, ForeignKey('clouds.id'), nullable=False)
 
     cloud = relationship('Cloud', back_populates='tasks')
 

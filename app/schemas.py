@@ -1,25 +1,12 @@
-from pydantic import BaseModel
-from typing import Optional
+from pydantic import BaseModel, Field
 
 
-class ProjectBase(BaseModel):
-    name: str
-    description: Optional[str] = None
-    owner_id: int
+class UserBase(BaseModel):
+    user_id: str
+    username: str
+    email: str
 
 
-class ProjectCreate(ProjectBase):
-    pass
-
-
-class Project(ProjectBase):
+class UserCreate(UserBase):
     id: int
-
-    class Config:
-        orm_mode = True
-
-
-class ProjectUpdate(BaseModel):
-    name: Optional[str] = None
-    description: Optional[str] = None
-    owner_id: Optional[int] = None
+    user_id: str = Field(..., alias="clerk_id")
