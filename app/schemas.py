@@ -10,3 +10,7 @@ class UserBase(BaseModel):
 class UserCreate(UserBase):
     id: int
     user_id: str = Field(..., alias="clerk_id")
+
+
+class UserList(BaseModel):
+    keyword: str

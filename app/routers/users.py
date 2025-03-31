@@ -4,7 +4,7 @@ from sqlalchemy.orm import Session
 
 from app.database import get_db
 from app.models import User
-from app.schemas import UserCreate
+from app.schemas import UserCreate, UserList
 from app.services.auth import data_from_user
 
 router = APIRouter(prefix="/users", tags=["users"])
@@ -29,3 +29,8 @@ def create_user(userdata: data_from_user, db: Session = Depends(get_db)):
         raise HTTPException(status_code=400, detail="User already exists")
 
     return new_user
+
+
+@router.get("/", response_model=UserList)
+def list_user(keyword: UserList, db: Session = Depends(get_db)):
+    return db.query(keyword).filter(keyword.value.ilike(f"{keyword}%")).all()
