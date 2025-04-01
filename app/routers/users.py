@@ -33,5 +33,8 @@ def create_user(userdata: data_from_user, db: Session = Depends(get_db)):
 
 
 @router.get("/", response_model=list[UserList])
-def list_user(keyword: str = Query("", alias="search"), db: Session = Depends(get_db)):
+def list_user(
+        keyword: str = Query("", alias="search"),
+        db: Session = Depends(get_db),
+):
     return db.query(User).filter(User.username.ilike(f"%{keyword}%")).all()

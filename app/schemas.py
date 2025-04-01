@@ -12,10 +12,6 @@ class UserCreate(UserBase):
     user_id: str = Field(..., alias="clerk_id")
 
 
-class KeywordForList(BaseModel):
-    keyword: str
-
-
 class UserList(BaseModel):
     id: int
     username: str
@@ -23,6 +19,5 @@ class UserList(BaseModel):
 
 
 class ProjectCreate(BaseModel):
-
     name: str
     description: str
