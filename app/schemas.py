@@ -20,3 +20,9 @@ class UserList(BaseModel):
     id: int
     username: str
     email: str
+
+
+class ProjectCreate(BaseModel):
+
+    name: str
+    description: str

@@ -10,6 +10,7 @@ from app.services.auth import data_from_user
 router = APIRouter(prefix="/users", tags=["users"])
 
 
+# TODO: why we need return UserCreate
 @router.post("/", response_model=UserCreate)
 def create_user(userdata: data_from_user, db: Session = Depends(get_db)):
     existing_user = db.query(User).filter(User.clerk_id == userdata.user_id).first()
