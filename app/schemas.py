@@ -12,5 +12,11 @@ class UserCreate(UserBase):
     user_id: str = Field(..., alias="clerk_id")
 
 
-class UserList(BaseModel):
+class KeywordForList(BaseModel):
     keyword: str
+
+
+class UserList(BaseModel):
+    id: int
+    username: str
+    email: str

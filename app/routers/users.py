@@ -1,4 +1,4 @@
-from fastapi import APIRouter, HTTPException, Depends
+from fastapi import APIRouter, HTTPException, Depends, Query
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
 
@@ -31,6 +31,6 @@ def create_user(userdata: data_from_user, db: Session = Depends(get_db)):
     return new_user
 
 
-@router.get("/", response_model=UserList)
-def list_user(keyword: UserList, db: Session = Depends(get_db)):
-    return db.query(keyword).filter(keyword.value.ilike(f"{keyword}%")).all()
+@router.get("/", response_model=list[UserList])
+def list_user(keyword: str = Query("", alias="search"), db: Session = Depends(get_db)):
+    return db.query(User).filter(User.username.ilike(f"%{keyword}%")).all()
